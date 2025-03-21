@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 function NoteDetail() {
   const { id } = useParams();
@@ -54,12 +56,14 @@ function NoteDetail() {
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
+          placeholder="Заголовок"
         />
       </div>
-      <div>
-        <textarea
+      <div style={{ marginTop: 10 }}>
+        <ReactQuill 
           value={content}
-          onChange={(e) => setContent(e.target.value)}
+          onChange={setContent}
+          placeholder="Введите текст заметки..."
         />
       </div>
       <button onClick={handleSave}>Сохранить</button>

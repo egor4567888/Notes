@@ -27,13 +27,13 @@ public class NoteController {
 
 
     // Возвращает заголовки заметок (id, title, lastModified)
-    @GetMapping("/getNotesHeaders")
+    @GetMapping("${controller.endpoints.getNotesHeaders}")
     public List<NoteHeaderDTO> getNotesHeaders() {
         return noteService.getAllNoteHeaders();
     }
 
     // Возвращает полную заметку по id
-    @GetMapping("/getNote")
+    @GetMapping("${controller.endpoints.getNote}")
     public ResponseEntity<NoteDTO> getNote(@RequestParam("id") Long id) {
         Note note = noteService.getNoteById(id);
         if (note != null) {
@@ -43,7 +43,7 @@ public class NoteController {
     }
 
     // Сохраняет изменения существующей заметки
-    @PostMapping("/saveNote")
+    @PostMapping("${controller.endpoints.saveNote}")
     public ResponseEntity<Void> saveNote(@RequestBody NoteDTO noteDto) {
         if (noteDto.getId() == null || noteService.getNoteById(noteDto.getId()) == null) {
             return ResponseEntity.badRequest().build();
@@ -54,7 +54,7 @@ public class NoteController {
     }
 
     // Создает новую заметку и возвращает её id
-    @PostMapping("/createNote")
+    @PostMapping("${controller.endpoints.createNote}")
     public ResponseEntity<NoteDTO> createNote(@RequestParam("lastModified") String lastModified) {
         Note note = new Note();
         note.setLastModified(lastModified);
@@ -63,7 +63,7 @@ public class NoteController {
     }
 
     // Удаляет заметку по id
-    @DeleteMapping("/deleteNote")
+    @DeleteMapping("${controller.endpoints.deleteNote}")
     public ResponseEntity<Void> deleteNote(@RequestParam("id") Long id) {
         if (noteService.deleteNote(id)) {
             return ResponseEntity.ok().build();
