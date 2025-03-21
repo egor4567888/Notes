@@ -2,13 +2,23 @@ package com.example.Notes.model;
 
 import lombok.Getter;
 import lombok.Setter;
+import jakarta.persistence.*;
 
 @Getter
 @Setter
+@Entity
+@Table(name = "notes")
 public class Note {
+    
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    
     private String title;
+    
+    @Column(columnDefinition = "TEXT")
     private String content;
+    
     private String lastModified;
 
     public Note() {}
@@ -19,4 +29,5 @@ public class Note {
         this.content = content;
         this.lastModified = lastModified;
     }
+    
 }

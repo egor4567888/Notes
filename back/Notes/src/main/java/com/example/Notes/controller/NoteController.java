@@ -1,7 +1,7 @@
 package com.example.Notes.controller;
 
 import com.example.Notes.model.Note;
-import com.example.Notes.service.NoteService;
+import com.example.Notes.service.NoteServiceInterface;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,9 +12,10 @@ import java.util.stream.Collectors;
 
 @RestController
 public class NoteController {
-    private final NoteService noteService;
 
-    public NoteController(NoteService noteService) {
+    private final NoteServiceInterface noteService;
+
+    public NoteController(NoteServiceInterface noteService) {
         this.noteService = noteService;
     }
 
@@ -22,14 +23,14 @@ public class NoteController {
     @GetMapping("/getNotesHeaders")
     public List<Map<String, Object>> getNotesHeaders() {
         return noteService.getAllNotes().stream()
-            .map(note -> {
-                Map<String, Object> noteMap = new LinkedHashMap<>();
-                noteMap.put("id", note.getId());
-                noteMap.put("title", note.getTitle());
-                noteMap.put("lastModified", note.getLastModified());
-                return noteMap;
-            })
-            .collect(Collectors.toList());
+                .map(note -> {
+                    Map<String, Object> noteMap = new LinkedHashMap<>();
+                    noteMap.put("id", note.getId());
+                    noteMap.put("title", note.getTitle());
+                    noteMap.put("lastModified", note.getLastModified());
+                    return noteMap;
+                })
+                .collect(Collectors.toList());
     }
 
     // Возвращает полную заметку по id
