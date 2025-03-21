@@ -20,7 +20,7 @@ function NoteDetail() {
   }, [id]);
 
   const handleSave = () => {
-    const updatedNote = {
+    const noteDto = {
       id,
       title,
       content,
@@ -30,7 +30,7 @@ function NoteDetail() {
     fetch('http://localhost:8080/saveNote', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(updatedNote)
+      body: JSON.stringify(noteDto)
     })
       .then(response => {
         if (response.ok) {

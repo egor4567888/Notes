@@ -9,15 +9,8 @@ function CreateNote() {
     if (hasCreated.current) return;
     hasCreated.current = true;
 
-    fetch('http://localhost:8080/createNote', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        title: '',
-        content: '',
-        lastModified: new Date().toISOString()
-      })
-    })
+    const lastModified = new Date().toISOString();
+    fetch(`http://localhost:8080/createNote?lastModified=${lastModified}`, { method: 'POST' })
       .then(response => response.json())
       .then(data => {
         if (data.id) {
