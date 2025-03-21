@@ -1,6 +1,7 @@
 package com.example.Notes.service;
 
 import com.example.Notes.model.Note;
+import com.example.Notes.dto.NoteHeaderDTO;
 import com.example.Notes.repository.NoteRepository;
 import org.springframework.stereotype.Service;
 
@@ -45,5 +46,9 @@ public class NoteService implements NoteServiceInterface {
             return true;
         }
         return false;
+    }
+    @Override
+    public List<NoteHeaderDTO> getAllNoteHeaders() {
+        return noteRepository.findAllHeaders();
     }
 }

@@ -4,6 +4,8 @@ import com.example.Notes.dto.NoteDTO;
 import com.example.Notes.dto.NoteHeaderDTO;
 import com.example.Notes.model.Note;
 import com.example.Notes.service.NoteServiceInterface;
+import com.example.Notes.converter.NoteConverter;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,21 +18,18 @@ import java.util.stream.Collectors;
 public class NoteController {
 
     private final NoteServiceInterface noteService;
+    private final NoteConverter noteConverter;
 
-    public NoteController(NoteServiceInterface noteService) {
+    public NoteController(NoteServiceInterface noteService, NoteConverter noteConverter) {
         this.noteService = noteService;
+        this.noteConverter = noteConverter;
     }
+
 
     // Возвращает заголовки заметок (id, title, lastModified)
     @GetMapping("/getNotesHeaders")
     public List<NoteHeaderDTO> getNotesHeaders() {
-        return noteService.getAllNotes().stream()
-                .map(note -> new NoteHeaderDTO(
-                        note.getId(),
-                        note.getTitle(),
-                        note.getLastModified()
-                ))
-                .collect(Collectors.toList());
+        return noteService.getAllNoteHeaders();
     }
 
     // Возвращает полную заметку по id
@@ -38,8 +37,7 @@ public class NoteController {
     public ResponseEntity<NoteDTO> getNote(@RequestParam("id") Long id) {
         Note note = noteService.getNoteById(id);
         if (note != null) {
-            NoteDTO dto = new NoteDTO(note.getId(), note.getTitle(), note.getContent(), note.getLastModified());
-            return ResponseEntity.ok(dto);
+            return ResponseEntity.ok(noteConverter.toNoteDTO(note));
         }
         return ResponseEntity.notFound().build();
     }
@@ -50,11 +48,7 @@ public class NoteController {
         if (noteDto.getId() == null || noteService.getNoteById(noteDto.getId()) == null) {
             return ResponseEntity.badRequest().build();
         }
-        Note note = new Note();
-        note.setId(noteDto.getId());
-        note.setTitle(noteDto.getTitle());
-        note.setContent(noteDto.getContent());
-        note.setLastModified(noteDto.getLastModified());
+        Note note = noteConverter.toNote(noteDto);
         noteService.saveNote(note);
         return ResponseEntity.ok().build();
     }
@@ -65,8 +59,7 @@ public class NoteController {
         Note note = new Note();
         note.setLastModified(lastModified);
         Note created = noteService.createNote(note);
-        NoteDTO dto = new NoteDTO(created.getId(), created.getTitle(), created.getContent(), created.getLastModified());
-        return ResponseEntity.ok(dto);
+        return ResponseEntity.ok(noteConverter.toNoteDTO(created));
     }
 
     // Удаляет заметку по id
