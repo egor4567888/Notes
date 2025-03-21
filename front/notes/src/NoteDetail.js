@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import QuillMarkdown from 'quill-markdown-shortcuts';
 
 function NoteDetail() {
   const { id } = useParams();
@@ -9,6 +10,29 @@ function NoteDetail() {
   const [content, setContent] = useState('');
   const [lastModified, setLastModified] = useState(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    ReactQuill.Quill.register('modules/markdown', QuillMarkdown);
+  }, []);
+
+  const modules = {
+    toolbar: [
+      ['bold', 'italic', 'underline', 'strike'],
+      ['blockquote', 'code-block'],
+      [{ header: 1 }, { header: 2 }],
+      [{ list: 'ordered' }, { list: 'bullet' }],
+      [{ script: 'sub' }, { script: 'super' }],
+      [{ indent: '-1' }, { indent: '+1' }],
+      [{ direction: 'rtl' }],
+      [{ size: ['small', false, 'large', 'huge'] }],
+      [{ header: [1, 2, 3, 4, 5, 6, false] }],
+      [{ color: [] }, { background: [] }],
+      [{ font: [] }],
+      [{ align: [] }],
+      ['clean']
+    ],
+    markdown: {} 
+  };
 
   useEffect(() => {
     fetch(`http://localhost:8080/getNote?id=${id}`)
@@ -60,10 +84,11 @@ function NoteDetail() {
         />
       </div>
       <div style={{ marginTop: 10 }}>
-        <ReactQuill 
+        <ReactQuill
           value={content}
           onChange={setContent}
-          placeholder="Введите текст заметки..."
+          modules={modules}
+          placeholder="Введите текст заметки (Markdown поддерживается)..."
         />
       </div>
       <button onClick={handleSave}>Сохранить</button>
