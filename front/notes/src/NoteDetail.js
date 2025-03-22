@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import QuillMarkdown from 'quill-markdown-shortcuts';
+import axios from './axiosInstance';
 
 function NoteDetail() {
   const { id } = useParams();
@@ -31,13 +32,13 @@ function NoteDetail() {
       [{ align: [] }],
       ['clean']
     ],
-    markdown: {} 
+    markdown: {}
   };
 
   useEffect(() => {
-    fetch(`http://localhost:8080/getNote?id=${id}`)
-      .then(res => res.json())
-      .then(data => {
+    axios.get(`/getNote?id=${id}`)
+      .then(response => {
+        const data = response.data;
         setTitle(data.title);
         setContent(data.content);
         setLastModified(data.lastModified);
@@ -53,13 +54,9 @@ function NoteDetail() {
       lastModified: new Date().toISOString()
     };
 
-    fetch('http://localhost:8080/saveNote', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(noteDto)
-    })
+    axios.post('/saveNote', noteDto)
       .then(response => {
-        if (response.ok) {
+        if (response.status === 200) {
           navigate('/');
         }
       })

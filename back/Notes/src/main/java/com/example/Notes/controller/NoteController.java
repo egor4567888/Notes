@@ -53,11 +53,10 @@ public class NoteController {
         return ResponseEntity.ok().build();
     }
 
-    // Создает новую заметку и возвращает её id
+    // Создает новую заметку и возвращает её id lastModified
     @PostMapping("${controller.endpoints.createNote}")
-    public ResponseEntity<NoteDTO> createNote(@RequestParam("lastModified") String lastModified) {
-        Note note = new Note();
-        note.setLastModified(lastModified);
+    public ResponseEntity<NoteDTO> createNote(@RequestBody NoteDTO noteDto) {
+        Note note = noteConverter.toNote(noteDto);
         Note created = noteService.createNote(note);
         return ResponseEntity.ok(noteConverter.toNoteDTO(created));
     }

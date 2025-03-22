@@ -20,14 +20,16 @@ public class Note {
     private String content;
     
     private String lastModified;
+    
+    private String author;
 
     public Note() {}
 
-    public Note(Long id, String title, String content, String lastModified) {
+    public Note(Long id, String title, String content, String lastModified, String author) {
         this.id = id;
         this.title = title;
         this.content = content;
         this.lastModified = lastModified;
+        this.author = author;
     }
-    
 }

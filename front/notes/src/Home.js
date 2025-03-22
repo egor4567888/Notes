@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from './axiosInstance';
 
 function Home() {
   const [notes, setNotes] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch('http://localhost:8080/getNotesHeaders')
-      .then(res => res.json())
-      .then(headers => {
+    axios.get('/getNotesHeaders')
+      .then(response => {
+        const headers = response.data;
         const sorted = headers.sort(
           (a, b) => new Date(b.lastModified) - new Date(a.lastModified)
         );
@@ -19,9 +20,9 @@ function Home() {
 
   const handleDelete = (id) => {
     if (window.confirm('Вы уверены, что хотите удалить заметку?')) {
-      fetch(`http://localhost:8080/deleteNote?id=${id}`, { method: 'DELETE' })
+      axios.delete(`/deleteNote?id=${id}`)
         .then(response => {
-          if (response.ok) {
+          if (response.status === 200) {
             setNotes(notes.filter(note => note.id !== id));
           }
         })

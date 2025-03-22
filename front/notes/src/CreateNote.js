@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from './axiosInstance';
 
 function CreateNote() {
   const navigate = useNavigate();
@@ -9,10 +10,15 @@ function CreateNote() {
     if (hasCreated.current) return;
     hasCreated.current = true;
 
-    const lastModified = new Date().toISOString();
-    fetch(`http://localhost:8080/createNote?lastModified=${lastModified}`, { method: 'POST' })
-      .then(response => response.json())
-      .then(data => {
+    const noteDto = {
+      title: '',
+      content: '',
+      lastModified: new Date().toISOString()
+    };
+
+    axios.post('/createNote', noteDto)
+      .then(response => {
+        const data = response.data;
         if (data.id) {
           navigate(`/note/${data.id}`, { replace: true });
         }
