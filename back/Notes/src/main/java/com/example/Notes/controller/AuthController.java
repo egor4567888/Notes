@@ -2,6 +2,7 @@ package com.example.Notes.controller;
 
 import com.example.Notes.dto.TokenResponseDto;
 import com.example.Notes.service.AuthService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,11 +14,23 @@ public class AuthController {
 
     private final AuthService authService;
 
+    @Value("${controller.endpoints.login}")
+    private String loginEndpoint;
+
+    @Value("${controller.endpoints.register}")
+    private String registerEndpoint;
+
+    @Value("${controller.endpoints.refresh}")
+    private String refreshEndpoint;
+
+    @Value("${controller.endpoints.logout}")
+    private String logoutEndpoint;
+
     public AuthController(AuthService authService) {
         this.authService = authService;
     }
 
-    @PostMapping("/login")
+    @PostMapping("${controller.endpoints.login}")
     public ResponseEntity<?> login(@RequestBody Map<String, String> loginRequest) {
         try {
             String username = loginRequest.get("username");
@@ -32,7 +45,7 @@ public class AuthController {
         }
     }
 
-    @PostMapping("/registr")
+    @PostMapping("${controller.endpoints.register}")
     public ResponseEntity<?> register(@RequestBody Map<String, String> registerRequest) {
         try {
             String username = registerRequest.get("username");
@@ -47,7 +60,7 @@ public class AuthController {
         }
     }
 
-    @PostMapping("/refresh")
+    @PostMapping("${controller.endpoints.refresh}")
     public ResponseEntity<?> refresh(@RequestBody Map<String, String> request) {
         try {
             String refreshToken = request.get("refreshToken");
@@ -58,7 +71,7 @@ public class AuthController {
         }
     }
 
-    @PostMapping("/logout")
+    @PostMapping("${controller.endpoints.logout}")
     public ResponseEntity<Void> logout() {
         return ResponseEntity.ok().build();
     }

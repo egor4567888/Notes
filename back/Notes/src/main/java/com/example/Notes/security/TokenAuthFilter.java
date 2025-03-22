@@ -26,7 +26,7 @@ public class TokenAuthFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         AntPathMatcher matcher = new AntPathMatcher();
         String path = request.getServletPath();
-        return excludedPaths.stream().anyMatch(ep -> matcher.match(ep, path));
+        return excludedPaths.stream().anyMatch(ep -> matcher.match(ep, path)) || path.startsWith("/ws/");
     }
 
     @Override

@@ -4,6 +4,7 @@ import Home from './Home';
 import NoteDetail from './NoteDetail';
 import CreateNote from './CreateNote';
 import Login from './Login';
+import ProtectedRoute from './ProtectedRoute';
 import './App.css';
 
 function App() {
@@ -11,9 +12,30 @@ function App() {
     <Router>
       <Routes>
         <Route path="/login" element={<Login />} />
-        <Route path="/" element={<Home />} />
-        <Route path="/note/:id" element={<NoteDetail />} />
-        <Route path="/create" element={<CreateNote />} />
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <Home />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/note/:id"
+          element={
+            <ProtectedRoute>
+              <NoteDetail />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/create"
+          element={
+            <ProtectedRoute>
+              <CreateNote />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </Router>
   );

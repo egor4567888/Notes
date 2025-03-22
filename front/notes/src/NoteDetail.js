@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import QuillMarkdown from 'quill-markdown-shortcuts';
 import axios from './axiosInstance';
+import SockJS from 'sockjs-client';
+import { Client } from '@stomp/stompjs';
 
 function NoteDetail() {
   const { id } = useParams();
@@ -11,6 +13,7 @@ function NoteDetail() {
   const [content, setContent] = useState('');
   const [lastModified, setLastModified] = useState(null);
   const navigate = useNavigate();
+  const autoSaveTimer = useRef(null);
 
   useEffect(() => {
     ReactQuill.Quill.register('modules/markdown', QuillMarkdown);
@@ -35,6 +38,29 @@ function NoteDetail() {
     markdown: {}
   };
 
+  // WebSocket connection через STOMP
+  useEffect(() => {
+    const client = new Client({
+      webSocketFactory: () => new SockJS('http://localhost:8080/ws'),
+      debug: function(str) {
+          console.log(str);
+      },
+      reconnectDelay: 5000,
+      onConnect: () => {
+        client.subscribe('/topic/note', message => {
+          const updatedNote = JSON.parse(message.body);
+          if (updatedNote.id === Number(id)) {
+            setTitle(updatedNote.title);
+            setContent(updatedNote.content);
+            setLastModified(updatedNote.lastModified);
+          }
+        });
+      }
+    });
+    client.activate();
+    return () => client.deactivate();
+  }, [id]);
+
   useEffect(() => {
     axios.get(`/getNote?id=${id}`)
       .then(response => {
@@ -57,11 +83,22 @@ function NoteDetail() {
     axios.post('/saveNote', noteDto)
       .then(response => {
         if (response.status === 200) {
-          navigate('/');
+          // Обновление времени последнего изменения на клиенте
+          setLastModified(new Date().toISOString());
         }
       })
       .catch(err => console.error(err));
   };
+
+  // Автосохранение с задержкой 0.01 секунда после внесения изменений
+  useEffect(() => {
+    if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+    autoSaveTimer.current = setTimeout(() => {
+      handleSave();
+    }, 10);
+
+    return () => clearTimeout(autoSaveTimer.current);
+  }, [title, content]);
 
   if (!lastModified) return <div>Загрузка...</div>;
 
@@ -88,7 +125,6 @@ function NoteDetail() {
           placeholder="Введите текст заметки (Markdown поддерживается)..."
         />
       </div>
-      <button onClick={handleSave}>Сохранить</button>
       <button onClick={() => navigate(-1)}>Назад</button>
     </div>
   );

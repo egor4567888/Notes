@@ -6,23 +6,23 @@ import com.example.Notes.model.Note;
 import com.example.Notes.service.NoteServiceInterface;
 import com.example.Notes.converter.NoteConverter;
 
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
-import java.util.Map;
-import java.util.LinkedHashMap;
-import java.util.stream.Collectors;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class NoteController {
 
     private final NoteServiceInterface noteService;
     private final NoteConverter noteConverter;
+    private final SimpMessagingTemplate messagingTemplate;
 
-    public NoteController(NoteServiceInterface noteService, NoteConverter noteConverter) {
+    public NoteController(NoteServiceInterface noteService, NoteConverter noteConverter, SimpMessagingTemplate messagingTemplate) {
         this.noteService = noteService;
         this.noteConverter = noteConverter;
+        this.messagingTemplate = messagingTemplate;
     }
 
 
@@ -50,6 +50,9 @@ public class NoteController {
         }
         Note note = noteConverter.toNote(noteDto);
         noteService.saveNote(note);
+        NoteDTO updatedDto = noteConverter.toNoteDTO(note);
+        // Рассылка обновление всем подписанным на топик "/topic/note"
+        messagingTemplate.convertAndSend("/topic/note", updatedDto);
         return ResponseEntity.ok().build();
     }
 

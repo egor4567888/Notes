@@ -4,14 +4,12 @@ import java.util.List;
 
 import com.example.Notes.security.TokenProvider;
 import com.example.Notes.security.TokenAuthFilter;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -32,7 +30,7 @@ public class SecurityConfiguration {
             .csrf(csrf -> csrf.disable())
             .addFilterBefore(new TokenAuthFilter(tokenProvider), UsernamePasswordAuthenticationFilter.class)
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/login", "/registr", "/refresh", "/logout").permitAll()
+                .requestMatchers("/login", "/registr", "/refresh", "/logout", "/ws/**").permitAll()
                 .anyRequest().authenticated()
             )
             .httpBasic(Customizer.withDefaults());
