@@ -2,8 +2,10 @@ package com.example.Notes.model;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import jakarta.persistence.*;
 
+@ToString
 @Getter
 @Setter
 @Entity
@@ -21,6 +23,7 @@ public class Note {
     
     private String lastModified;
     
+    @Column(nullable = false)
     private String author;
 
     public Note() {}

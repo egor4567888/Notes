@@ -1,11 +1,12 @@
 package com.example.Notes.service;
 
+import com.example.Notes.dto.TokenResponseDto;
 import com.example.Notes.model.User;
 import com.example.Notes.repository.UserRepository;
 import com.example.Notes.security.TokenProvider;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import java.util.Map;
+
 import java.util.Optional;
 
 @Service
@@ -21,18 +22,18 @@ public class AuthService {
         this.passwordEncoder = new BCryptPasswordEncoder();
     }
 
-    public Map<String, String> login(String username, String password) {
+    public TokenResponseDto login(String username, String password) {
         Optional<User> userOpt = userRepository.findByUsername(username);
         if (userOpt.isPresent() && passwordEncoder.matches(password, userOpt.get().getPasswordHash())) {
             User user = userOpt.get();
             String accessToken = tokenProvider.createAccessToken(user);
             String refreshToken = tokenProvider.createRefreshToken(user);
-            return Map.of("accessToken", accessToken, "refreshToken", refreshToken);
+            return new TokenResponseDto(accessToken, refreshToken);
         }
         throw new RuntimeException("Invalid credentials");
     }
 
-    public Map<String, String> register(String username, String password) {
+    public TokenResponseDto register(String username, String password) {
         if (userRepository.findByUsername(username).isPresent()) {
             throw new RuntimeException("User already exists");
         }
@@ -42,17 +43,17 @@ public class AuthService {
         userRepository.save(user);
         String accessToken = tokenProvider.createAccessToken(user);
         String refreshToken = tokenProvider.createRefreshToken(user);
-        return Map.of("accessToken", accessToken, "refreshToken", refreshToken);
+        return new TokenResponseDto(accessToken, refreshToken);
     }
 
-    public Map<String, String> refresh(String refreshToken) {
+    public TokenResponseDto refresh(String refreshToken) {
         if (tokenProvider.validateToken(refreshToken)) {
             String username = tokenProvider.getUsernameFromToken(refreshToken);
             User user = userRepository.findByUsername(username)
                     .orElseThrow(() -> new RuntimeException("User not found"));
             String newAccessToken = tokenProvider.createAccessToken(user);
             String newRefreshToken = tokenProvider.createRefreshToken(user);
-            return Map.of("accessToken", newAccessToken, "refreshToken", newRefreshToken);
+            return new TokenResponseDto(newAccessToken, newRefreshToken);
         }
         throw new RuntimeException("Invalid refresh token");
     }

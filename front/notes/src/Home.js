@@ -5,6 +5,7 @@ import axios from './axiosInstance';
 function Home() {
   const [notes, setNotes] = useState([]);
   const navigate = useNavigate();
+  const username = localStorage.getItem('username') || "Пользователь";
 
   useEffect(() => {
     axios.get('/getNotesHeaders')
@@ -18,7 +19,8 @@ function Home() {
       .catch(err => console.error(err));
   }, []);
 
-  const handleDelete = (id) => {
+  const handleDelete = (e, id) => {
+    e.stopPropagation();
     if (window.confirm('Вы уверены, что хотите удалить заметку?')) {
       axios.delete(`/deleteNote?id=${id}`)
         .then(response => {
@@ -30,20 +32,69 @@ function Home() {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('username');
+    navigate('/login');
+  };
+
+  const formatDate = (dateStr) => {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const dateDay = date.getDate();
+    const dateMonth = date.getMonth();
+    const dateYear = date.getFullYear();
+    const nowDay = now.getDate();
+    const nowMonth = now.getMonth();
+    const nowYear = now.getFullYear();
+
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+
+    if (dateYear === nowYear && dateMonth === nowMonth) {
+      if (dateDay === nowDay) {
+        return `сегодня в ${hours}:${minutes}`;
+      } else if (dateDay === nowDay - 1) {
+        return `вчера в ${hours}:${minutes}`;
+      }
+    }
+    const dd = String(dateDay).padStart(2, '0');
+    const mm = String(dateMonth + 1).padStart(2, '0');
+    const yy = String(dateYear).slice(2);
+    return `${dd}.${mm}.${yy} в ${hours}:${minutes}`;
+  };
+
   return (
-    <div>
-      <h1>Заметки</h1>
-      <button onClick={() => navigate('/create')}>Создать заметку</button>
-      <ul>
+    <div className="container">
+      <header>
+        <div>
+          <h1>Заметки</h1>
+          <span style={{ marginLeft: '10px', fontSize: '1rem', color: '#555' }}>
+            {username}
+          </span>
+        </div>
+        <button onClick={handleLogout}>Выйти</button>
+      </header>
+      <button onClick={() => navigate('/create')} style={{ marginTop: '20px' }}>
+        Создать заметку
+      </button>
+      <ul style={{ marginTop: '20px' }}>
         {notes.map(note => (
-          <li key={note.id} style={{ margin: '8px 0' }}>
-            <span
-              style={{ cursor: 'pointer', textDecoration: 'underline', marginRight: '10px' }}
-              onClick={() => navigate(`/note/${note.id}`)}
-            >
-              {note.title} – {new Date(note.lastModified).toLocaleString()}
+          <li 
+            key={note.id} 
+            onClick={() => navigate(`/note/${note.id}`)}
+            style={{ margin: '8px 0', cursor: 'pointer' }}
+          >
+            <span>
+              {(note.title && note.title.trim() !== '') ? note.title : 'Новая заметка'} – {formatDate(note.lastModified)}
             </span>
-            <button onClick={() => handleDelete(note.id)}>×</button>
+            <button 
+              onClick={(e) => handleDelete(e, note.id)}
+              style={{ marginLeft: '10px' }}
+            >
+              ×
+            </button>
           </li>
         ))}
       </ul>

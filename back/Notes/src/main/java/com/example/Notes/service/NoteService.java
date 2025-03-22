@@ -43,6 +43,7 @@ public class NoteService implements NoteServiceInterface {
         if (note.getId() != null) {
             Optional<Note> existing = noteRepository.findByIdAndAuthor(note.getId(), username);
             if (existing.isPresent()) {
+                note.setAuthor(username);
                 return noteRepository.save(note);
             }
         }
@@ -68,7 +69,7 @@ public class NoteService implements NoteServiceInterface {
         return false;
     }
     
-    // Метод для получения заголовков заметок текущего пользователя
+    // Новый метод для получения заголовков заметок текущего пользователя
     @Override
     public List<NoteHeaderDTO> getAllNoteHeaders() {
         String username = getCurrentUsername();

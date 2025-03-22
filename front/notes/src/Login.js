@@ -5,42 +5,47 @@ import axios from './axiosInstance';
 function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
   const navigate = useNavigate();
 
   const handleLogin = (e) => {
     e.preventDefault();
+    setErrorMsg('');
     axios.post('/login', { username, password })
       .then(response => {
         const { accessToken, refreshToken } = response.data;
         localStorage.setItem('accessToken', accessToken);
         localStorage.setItem('refreshToken', refreshToken);
+        localStorage.setItem('username', username);
         navigate('/');
       })
       .catch(err => {
         console.error(err);
-        alert('Неверные учетные данные');
+        setErrorMsg(err.response ? err.response.data : "Ошибка авторизации");
       });
   };
 
   const handleRegister = (e) => {
     e.preventDefault();
+    setErrorMsg('');
     axios.post('/registr', { username, password })
       .then(response => {
         const { accessToken, refreshToken } = response.data;
         localStorage.setItem('accessToken', accessToken);
         localStorage.setItem('refreshToken', refreshToken);
+        localStorage.setItem('username', username);
         navigate('/');
       })
       .catch(err => {
         console.error(err);
-        alert('Ошибка регистрации');
+        setErrorMsg(err.response ? err.response.data : "Ошибка регистрации");
       });
   };
 
   return (
-    <div>
-      <h2>Авторизация</h2>
+    <div className="container">
       <form onSubmit={handleLogin}>
+        <h2 style={{ textAlign: 'center' }}>Авторизация</h2>
         <div>
           <label>Имя пользователя:</label>
           <input
@@ -59,8 +64,15 @@ function Login() {
             required
           />
         </div>
-        <button type="submit">Войти</button>
-        <button onClick={handleRegister}>Регистрация</button>
+        <div style={{ textAlign: 'center' }}>
+          <button type="submit">Войти</button>
+          <button onClick={handleRegister} style={{ marginLeft: '10px' }}>Регистрация</button>
+        </div>
+        {errorMsg && (
+          <div style={{ color: 'red', textAlign: 'center', marginTop: '10px' }}>
+            {errorMsg}
+          </div>
+        )}
       </form>
     </div>
   );

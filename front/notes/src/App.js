@@ -4,6 +4,7 @@ import Home from './Home';
 import NoteDetail from './NoteDetail';
 import CreateNote from './CreateNote';
 import Login from './Login';
+import './App.css';
 
 function App() {
   return (
